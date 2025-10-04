@@ -1,5 +1,5 @@
-import moongoose from 'mongoose';
-const { Schema } = moongoose;
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 const userSchema = new Schema({
     username: {
@@ -30,5 +30,5 @@ const userSchema = new Schema({
     verifyTokenExpiry: Date,
 }, { timestamps: true });
 
-const User = moongoose.models.users || moongoose.model('users', userSchema);
+const User = mongoose.models.users || mongoose.model('users', userSchema);
 export default User;
