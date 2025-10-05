@@ -3,7 +3,10 @@ import dotenv from "dotenv";
 dotenv.config();
 export async function connectToDatabase() {
     try {
-        mongoose.connect(process.env.MONGO_URL!)
+        mongoose.connect(process.env.MONGO_URI!)
+        if (process.env.MONGO_URI === undefined) {
+            throw new Error("MONGO_URI is not defined");
+        }
         const connection = mongoose.connection 
         connection.on("connected",() => {
             console.log("Database connected successfully");

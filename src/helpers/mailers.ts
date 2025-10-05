@@ -1,6 +1,9 @@
 import nodemailer from 'nodemailer';
 import User from '@/model/usermodel';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const sendEmail = async ({email, emailType, userId}: any) => {
     try {
@@ -39,7 +42,10 @@ export const sendEmail = async ({email, emailType, userId}: any) => {
             from: 'vaskarbhattacharjee03@gmail.com',
             to: email,
             subject: emailType === "VERIFY" ? "Verify your email" : "Reset your password",
-            html: "<p></p>",
+            html: `<p> Click <a href="${process.env.DOMAIN}/verifyemail?token=${verifyToken}">here</a> to 
+            ${emailType === "VERIFY" ? "verify your email" : "reset your password"}. This link will expire in 1 hour.
+            
+            </p>`,
         };
         const mailResponse = await transport.sendMail(mailOptions);
         return mailResponse;
