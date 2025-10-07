@@ -6,7 +6,7 @@ import { sendEmail } from '@/helpers/mailers';
 connectToDatabase();
 
 export async function POST(request: NextRequest) {
-    try {
+       try {
         const { username, email, password } = await request.json();
         //validation
         console.log(username, email, password);
@@ -51,3 +51,5 @@ export async function POST(request: NextRequest) {
         );
     }
 }
+
+

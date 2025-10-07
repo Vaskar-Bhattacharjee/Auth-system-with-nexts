@@ -1,9 +1,9 @@
 import { connectToDatabase } from '@/dbconfig/dbconfig';
-import { NextResponse, NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 connectToDatabase();
 
-export async function GET(request: NextRequest) {
+export async function POST() {
     try {
         const response = NextResponse.json({
             message: "User logged out successfully",
