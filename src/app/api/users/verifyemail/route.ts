@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         console.log("User found:", user);
 
         if (!user) {
-            return NextResponse.json({ message: "Invalid or expired token" }, { status: 400 });
+            return NextResponse.json({ message: "Invalid or expired token or you are not signed up" }, { status: 400 });
         }
 
         user.isVerified = true;
