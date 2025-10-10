@@ -1,98 +1,89 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-
-
-interface UserProfile {
-  username?: string
-  email: string
-
-}
+import Link from 'next/link'
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [userId, setUserId] = useState<string>('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const fetchProfile = async () => {
+  // ✅ Fetch Logged-in User ID
+  const fetchId = async () => {
     try {
       setLoading(true)
-      setError(null)
-      console.log('Fetching profile...')  // ✅ add this
+      const response = await axios.get('/api/users/me')
+      console.log('Profile fetch response:', response)
 
-      const response = await axios.get('/api/users/me') as any
-      console.log('Profile fetch response:', response);
-      
       if (response.data?.success) {
-        setProfile(response.data.user)
-        console.log('Profile data:', response.data);
-        
+        const id = response.data.user._id
+        setUserId(id)
         toast.success('Profile fetched successfully')
+        console.log('Fetched user ID:', id)
       } else {
-        setError(response.data?.message || 'Failed to fetch profile')
         toast.error(response.data?.message || 'Failed to fetch profile')
       }
-    } catch (err: any) {
-      const message =
-        err.response?.data?.message || err.message || 'Something went wrong'
-      setError(message)
-      toast.error(message)
-      console.error('Profile fetch error:', err)
+    } catch (error: any) {
+      console.error('Error fetching profile:', error)
+      toast.error(error.response?.data?.message || 'Something went wrong')
     } finally {
       setLoading(false)
     }
   }
 
+  // ✅ Logout handler
+  const clickLogout = async () => {
+    try {
+      const response = await axios.post('/api/users/logout')
+      if (response.data?.success) {
+        toast.success('Logged out successfully')
+        window.location.href = '/login'
+      } else {
+        toast.error(response.data?.message || 'Failed to logout')
+      }
+    } catch (error: any) {
+      console.error('Logout error:', error)
+      toast.error(error.response?.data?.message || 'Something went wrong')
+    }
+  }
+
   useEffect(() => {
-     console.log('useEffect fired');  // ✅ add this
-     fetchProfile()
+    fetchId()
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-slate-800 mb-6 text-center">
-            👤 User Profile
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-6">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
+        <h1 className="text-3xl font-semibold text-slate-800 mb-8 text-center">
+          👤 User Profile
+        </h1>
 
-          {loading && (
-            <div className="text-center text-slate-500">Loading profile...</div>
-          )}
+        {loading ? (
+          <p className="text-center text-slate-500">Loading...</p>
+        ) : (
+          <div className="space-y-6 text-center">
+            {/* ✅ Show link to user info */}
+            {userId ? (
+              <Link
+                href={`/profile/${userId}`}
+                className="inline-block px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 focus:outline-none transition-all duration-200"
+              >
+                View User Information
+              </Link>
+            ) : (
+              <p className="text-slate-500 text-sm">No user ID found</p>
+            )}
 
-          {error && !loading && (
-            <div className="text-center text-red-500 font-medium">{error}</div>
-          )}
-
-          {!loading && !error && profile && (
-            <div className="space-y-4">
-              <div>
-                <p className="text-slate-500 text-sm">Name:</p>
-                <p className="text-slate-800 text-lg font-semibold">
-                  {profile.username || 'N/A'}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-slate-500 text-sm">Email</p>
-                <p className="text-slate-800 text-lg font-semibold">
-                  {profile.email}
-                </p>
-              </div>
-
-              {/* {profile.createdAt && (
-                <div>
-                  <p className="text-slate-500 text-sm">Joined on</p>
-                  <p className="text-slate-800 text-lg font-semibold">
-                    {new Date(profile.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              )} */}
-            </div>
-          )}
-        </div>
+            {/* ✅ Logout Button */}
+            <button
+              onClick={clickLogout}
+              className="w-full px-6 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg shadow-sm hover:from-red-600 hover:to-red-700 focus:ring-2 focus:ring-red-400 focus:outline-none transition-all duration-200"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
